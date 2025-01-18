@@ -8,24 +8,22 @@ const scrapeAmazonProducts = async () => {
 
   // page.on('console', msg => console.log('PAGE LOG:', msg.text()));
 
+  await page.goto("https://www.ebay.com/");
+  await page.waitForSelector('#gh-ac-wrap input');
+  await page.type('#gh-ac-wrap input', "samsung galaxy core");
+  await page.waitForSelector('#gh-search-btn');
+  await page.click('#gh-search-btn');
+  await page.waitForNavigation();
 
-  try {
+  let allProducts = [];
 
-    await page.goto("https://www.ebay.com/");
-    await page.waitForSelector('#gh-ac-wrap input');
-    await page.type('#gh-ac-wrap input', "samsung galaxy core");
-    await page.waitForSelector('#gh-search-btn');
-    await page.click('#gh-search-btn');
-    await page.waitForNavigation();
-
-    let allProducts = [];
-
-    // Scrape products from the first page
-    const firstPageProducts = await scrapeProductsFromPage(page);
-    allProducts = allProducts.concat(firstPageProducts);
+  // Scrape products from the first page
+  const firstPageProducts = await scrapeProductsFromPage(page);
+  allProducts = allProducts.concat(firstPageProducts);
 
     let nextPageButton = await page.$('.pagination__next');
 
+  try {
     while(true) {
       await nextPageButton.click();
       await page.waitForNavigation();
@@ -34,17 +32,7 @@ const scrapeAmazonProducts = async () => {
       allProducts = allProducts.concat(nextPageProducts);
 
       nextPageButton = await page.$('.pagination__next');
-      if (nextPageButton.isVisible) {
-        // Check if the element is enabled and clickable
-        reak
-        console.log('The element was not found on the page.');
-      }// const isClickable = await nextPageButton.is;
-        if (isClickable) {
-          console.log('The element is clickable!');
-        } else {
-          console.log('The element is not clickable.');
-        }
-        continue
+      await page.setDefaultTimeout(5000);
       }
 
     
@@ -56,9 +44,9 @@ const scrapeAmazonProducts = async () => {
 
     // You can add more actions here after the search results load
   } catch (error) {
-    console.error("Error executing Puppeteer commands:", error);
+    // console.error("Error executing Puppeteer commands:", error);
   } finally {
-  
+    console.log(allProducts);
     await browser.close(); // Ensure the browser closes in the end
   }
 };
